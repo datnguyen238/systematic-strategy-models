@@ -10,17 +10,19 @@ from src.features import zscore_prices, rolling_vol
 
 @dataclass(frozen=True)
 class MeanRevConfig:
-    z_window: int = 20
-    entry_z: float = 2.0
-    exit_z: float = 0.0
-    max_hold: int = 5
+    z_window: int = 20  # How many days to compute z-score over
+    entry_z: float = 2.0 # Enter trade if |z| > 2.0σ (2 standard deviations)
+    exit_z: float = 0.0   # Exit when z swings back to 0
+    max_hold: int = 5 # Max 5 days in trade before forced exit
 
-    vol_window: int = 20
-    target_vol: float = 0.10
+    vol_window: int = 20 # Volatility estimation window
+    target_vol: float = 0.10 # Target 10% annualized portfolio vol
     max_gross_leverage: float = 1.0
     min_vol: float = 1e-6
 
     use_vol_filter: bool = True
+
+    # Mean reversion performs poorly in high-volatility regimes.
     vol_percentile: float = 0.80  # disable trading when vol is above this percentile
 
 
