@@ -4,7 +4,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.data import DataConfig, fetch_prices, close_prices, compute_returns
-from src.strategies.tsmom import TSMOMConfig, generate_positions_tsmom
+from src.strategies.tsmom import TSMOMConfig, generate_positions_tsmom, rebalance_mask
 from src.backtest.engine import backtest_positions
 from src.backtest.metrics import summary_metrics
 
@@ -18,19 +18,27 @@ def main() -> None:
     rets = compute_returns(closes)
 
     s_cfg = TSMOMConfig(
-        lookback=126,
-        vol_window=20,
+        signal_mode="monthly_12_1",
+        lookback=12,
+        skip_recent=1,
+        signal_lag=1,
+        hold_rebalances=1,
+        vol_window=63,
+        use_ewm_vol=True,
+        ewma_decay=0.94,
         target_vol=0.10,
-        rebalance="W-FRI",
+        rebalance="ME",
         max_gross_leverage=1.0,
-        mom_threshold=0.10,  # freeze
+        mom_threshold=0.00,
+        equal_weight_active=True,
     )
 
     pos = generate_positions_tsmom(rets, s_cfg)
+    mask = rebalance_mask(rets.index, s_cfg.rebalance)
 
     rows = []
     for cost_bps in [0.0, 2.0, 5.0, 10.0, 20.0]:
-        res = backtest_positions(pos, rets, cost_bps=cost_bps)
+        res = backtest_positions(pos, rets, cost_bps=cost_bps, trade_mask=mask)
         m = summary_metrics(res)
         rows.append({"cost_bps": cost_bps, **m})
 
