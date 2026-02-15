@@ -22,12 +22,19 @@ def main() -> None:
 
     for thr in [0.00, 0.05, 0.10]:
         s_cfg = TSMOMConfig(
-            lookback=126,
-            vol_window=20,
+            signal_mode="monthly_12_1",
+            lookback=12,
+            skip_recent=1,
+            signal_lag=1,
+            hold_rebalances=1,
+            vol_window=63,
+            use_ewm_vol=True,
+            ewma_decay=0.94,
             target_vol=0.10,
-            rebalance="W-FRI",
+            rebalance="ME",
             max_gross_leverage=1.0,
             mom_threshold=thr,
+            equal_weight_active=True,
         )
 
         positions = generate_positions_tsmom(rets, s_cfg)
