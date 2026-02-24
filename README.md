@@ -1,36 +1,51 @@
 # Systematic Strategy Models
 
-This repository evaluates two systematic strategies on a diversified ETF universe:
-- Mean Reversion (`src/strategies/mean_reversion.py`)
-- Time-Series Momentum (TSMOM) (`src/strategies/tsmom.py`)
+## Project Summary
+This is a small quant research project where I tested two trading ideas on a basket of ETFs:
+- Mean Reversion: bet that large short-term moves may bounce back.
+- Time-Series Momentum (TSMOM): bet that medium-term trends may continue.
 
-## Paper Information
+The main goal was to build a clean backtesting pipeline and compare these two ideas under realistic transaction costs.
 
-The current `TSMOM` implementation is configured as a research-style "paper baseline" aligned with:
+## What I Built
+- Data pipeline to download/cache ETF prices.
+- Feature engineering for returns, volatility, and signals.
+- Strategy modules for Mean Reversion and TSMOM.
+- Backtest engine with:
+  - no look-ahead position handling
+  - turnover-based trading costs
+  - common performance metrics (Sharpe, CAGR, drawdown)
+- Experiment scripts for sensitivity tests and walk-forward evaluation.
 
-1. Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). *Time series momentum*. Journal of Financial Economics, 104(2), 228-250.  
-   DOI: `10.1016/j.jfineco.2011.11.003`
+## Simple Result (Plain English)
+- Mean Reversion did not hold up well in this ETF universe.
+- TSMOM looked better before costs, but performance dropped a lot when costs increased.
+- Takeaway: strategy quality and trading frictions matter as much as raw signal ideas.
 
-## How Paper Concepts Map to Code
+## Project Structure
+- `src/data.py`: data download, cache, close prices, returns.
+- `src/features.py`: rolling volatility and helper features.
+- `src/strategies/mean_reversion.py`: mean reversion signal + position logic.
+- `src/strategies/tsmom.py`: momentum signal + position logic.
+- `src/backtest/engine.py`: converts positions + returns into PnL.
+- `src/backtest/costs.py`: turnover and transaction cost model.
+- `src/backtest/metrics.py`: performance statistics.
+- `src/experiments/`: runnable scripts for tests and reports.
 
-In `src/strategies/tsmom.py`:
+## How To Run
+```bash
+./venv/bin/python -m src.experiments.smoke_test_data
+./venv/bin/python -m src.experiments.run_meanrev_sensitivity
+./venv/bin/python -m src.experiments.run_meanrev_walkforward
+./venv/bin/python -m src.experiments.run_tsmom_cost_sensitivity
+```
 
-- Monthly `12-1` style signal:
-  - `signal_mode="monthly_12_1"`
-  - `lookback=12`
-  - `skip_recent=1`
-- Lagged information set (no look-ahead):
-  - `signal_lag=1`
-  - volatility estimate shifted by lag before sizing
-- Volatility scaling / risk targeting:
-  - `target_vol=0.10`
-  - `use_ewm_vol=True`
-  - `ewma_decay=0.94`
-- Month-end rebalance:
-  - `rebalance="ME"`
-- Overlapping portfolio construction (Jegadeesh-Titman style):
-  - `hold_rebalances > 1` enables overlap averaging
+Outputs are saved in `data/processed/`.
 
-## Important Note
+## Paper Reference
+This project is inspired by:
+- Moskowitz, Ooi, Pedersen (2012), *Time Series Momentum*  
+  DOI: `10.1016/j.jfineco.2011.11.003`
 
-This code is an ETF-based research approximation inspired by the papers above, not a full exact replication of every paper dataset, instrument set, or portfolio construction detail.
+## Scope Note
+This is an educational/research build using ETFs, not a production trading system.
