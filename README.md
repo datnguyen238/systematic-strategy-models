@@ -17,7 +17,7 @@ The main goal was to build a clean backtesting pipeline and compare these two id
   - common performance metrics (Sharpe, CAGR, drawdown)
 - Experiment scripts for sensitivity tests and walk-forward evaluation.
 
-## Simple Result (Plain English)
+## Simple Result 
 - Mean Reversion did not hold up well in this ETF universe.
 - TSMOM looked better before costs, but performance dropped a lot when costs increased.
 - Takeaway: strategy quality and trading frictions matter as much as raw signal ideas.
