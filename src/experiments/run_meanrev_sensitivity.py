@@ -13,7 +13,7 @@ def main() -> None:
     closes = close_prices(prices)
     rets = compute_returns(closes)
 
-    df = meanrev_sensitivity(closes, rets, cost_bps=10.0)
+    df = meanrev_sensitivity(closes, rets, cost_bps=10.0, cost_grid=[0.0, 5.0, 10.0, 20.0])
 
     print(df.head(15).to_string(index=False))
 

@@ -14,14 +14,19 @@ def main() -> None:
     closes = close_prices(prices)
     rets = compute_returns(closes)
 
-    # Freeze a single baseline MR config for reporting (return-shock MR + vol filter)
+    # Freeze a baseline MR config for reporting (price-deviation MR + regime filters)
     s_cfg = MeanRevConfig(
-        z_window=10,
-        entry_z=2.0,
-        exit_z=0.0,
+        signal_mode="price_ma_z",
+        z_window=40,
+        entry_z=3.0,
+        exit_z=0.25,
+        stop_z=4.5,
         max_hold=5,
         use_vol_filter=True,
         vol_percentile=0.80,
+        use_trend_filter=True,
+        trend_window=50,
+        trend_threshold=0.03,
         vol_window=20,
         target_vol=0.10,
         max_gross_leverage=1.0,
